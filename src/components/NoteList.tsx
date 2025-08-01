@@ -31,9 +31,11 @@ import {
   AccountTree as TreeViewIcon,
   Clear as ClearIcon,
   Download as DownloadIcon,
+  Psychology as AITestIcon,
 } from '@mui/icons-material';
 import { Note } from '@/types/note';
 import FolderTree from './FolderTree';
+import AITestDialog from './AITestDialog';
 
 interface NoteListProps {
   notes: Note[];
@@ -63,6 +65,7 @@ const NoteList: React.FC<NoteListProps> = ({
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [menuNoteId, setMenuNoteId] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<'list' | 'tree'>('list');
+  const [aiTestDialogOpen, setAiTestDialogOpen] = useState(false);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
   const folderInputRef = React.useRef<HTMLInputElement>(null);
 
@@ -330,6 +333,13 @@ const NoteList: React.FC<NoteListProps> = ({
               title={viewMode === 'list' ? '切换到文件夹视图' : '切换到列表视图'}
             >
               {viewMode === 'list' ? <TreeViewIcon /> : <ListViewIcon />}
+            </IconButton>
+            <IconButton 
+              onClick={() => setAiTestDialogOpen(true)} 
+              color="secondary" 
+              title="测试AI功能"
+            >
+              <AITestIcon />
             </IconButton>
             <IconButton onClick={handleExportData} color="success" title="导出备份数据">
               <DownloadIcon />
@@ -602,6 +612,12 @@ const NoteList: React.FC<NoteListProps> = ({
           Delete Note
         </MenuItem>
       </Menu>
+
+      {/* AI测试对话框 */}
+      <AITestDialog 
+        open={aiTestDialogOpen} 
+        onClose={() => setAiTestDialogOpen(false)} 
+      />
     </Paper>
   );
 };

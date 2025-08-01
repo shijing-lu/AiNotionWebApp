@@ -1,10 +1,42 @@
 import OpenAI from 'openai';
 
-// 创建OpenAI客户端实例
+// 检查AI服务提供商配置
+const aiProvider = process.env.NEXT_PUBLIC_AI_PROVIDER || 'openai';
+const openaiKey = process.env.NEXT_PUBLIC_OPENAI_API_KEY;
+const deepseekKey = process.env.NEXT_PUBLIC_DEEPSEEK_API_KEY;
+
+// 根据配置选择API密钥和基础URL
+let apiKey: string;
+let baseURL: string;
+let modelName: string;
+
+if (aiProvider === 'deepseek') {
+  apiKey = deepseekKey || '';
+  baseURL = 'https://api.deepseek.com';
+  modelName = 'deepseek-chat';
+  console.log('🚀 使用DeepSeek AI服务');
+} else {
+  apiKey = openaiKey || '';
+  baseURL = 'https://api.openai.com/v1';
+  modelName = 'gpt-3.5-turbo';
+  console.log('🤖 使用OpenAI服务');
+}
+
+if (!apiKey) {
+  console.warn(`⚠️ ${aiProvider.toUpperCase()} API密钥未配置，AI功能将无法使用`);
+}
+
+// 创建AI客户端实例
 const openai = new OpenAI({
-  apiKey: process.env.NEXT_PUBLIC_OPENAI_API_KEY || '',
+  apiKey: apiKey,
+  baseURL: baseURL,
   dangerouslyAllowBrowser: true, // 允许在浏览器中使用（仅用于演示）
 });
+
+// 添加调试信息
+console.log(`🔑 ${aiProvider.toUpperCase()} API Key status:`, apiKey ? `已配置 (${apiKey.slice(0, 7)}...${apiKey.slice(-4)})` : '未配置');
+console.log(`🌐 API Base URL: ${baseURL}`);
+console.log(`🧠 Model: ${modelName}`);
 
 export interface AIResponse {
   content: string;
@@ -38,7 +70,7 @@ export class AIService {
         : `Please generate a concise summary of the following text, no more than ${maxLength} words:\n\n${text}`;
 
       const response = await openai.chat.completions.create({
-        model: 'gpt-3.5-turbo',
+        model: modelName,
         messages: [
           {
             role: 'system',
@@ -58,11 +90,27 @@ export class AIService {
       return {
         content: response.choices[0]?.message?.content || '无法生成摘要'
       };
-    } catch (error) {
+    } catch (error: any) {
       console.error('AI summarization error:', error);
+      
+      // 提供更具体的错误信息
+      let errorMessage = '生成摘要时发生错误';
+      
+      if (error?.error?.type === 'invalid_request_error') {
+        errorMessage = 'API请求无效，请检查API密钥格式';
+      } else if (error?.status === 401) {
+        errorMessage = 'API密钥无效或未授权，请检查API配置';
+      } else if (error?.status === 429) {
+        errorMessage = 'API调用频率超限或余额不足';
+      } else if (error?.status === 500) {
+        errorMessage = 'OpenAI服务器错误，请稍后重试';
+      } else if (!apiKey) {
+        errorMessage = 'API密钥未配置，请在.env.local文件中设置NEXT_PUBLIC_OPENAI_API_KEY';
+      }
+      
       return {
         content: '',
-        error: '生成摘要时发生错误，请检查API配置'
+        error: errorMessage
       };
     }
   }
@@ -75,7 +123,7 @@ export class AIService {
       const prompt = `请将以下文本翻译成${targetLanguage}：\n\n${text}`;
 
       const response = await openai.chat.completions.create({
-        model: 'gpt-3.5-turbo',
+        model: modelName,
         messages: [
           {
             role: 'system',
@@ -118,7 +166,7 @@ export class AIService {
         : `Please explain the following concept for a ${levelText[level]} level: "${concept}"${context ? `\n\nContext: ${context}` : ''}\n\nProvide a clear, understandable explanation including definition, use cases, and relevant examples.`;
 
       const response = await openai.chat.completions.create({
-        model: 'gpt-3.5-turbo',
+        model: modelName,
         messages: [
           {
             role: 'system',
@@ -153,7 +201,7 @@ export class AIService {
       const prompt = `基于以下上下文回答问题：\n\n上下文：\n${context}\n\n问题：${question}`;
 
       const response = await openai.chat.completions.create({
-        model: 'gpt-3.5-turbo',
+        model: modelName,
         messages: [
           {
             role: 'system',
@@ -193,7 +241,7 @@ export class AIService {
       const prompt = `请将以下文本改写为${styleDescriptions[style]}，保持原意不变：\n\n${text}`;
 
       const response = await openai.chat.completions.create({
-        model: 'gpt-3.5-turbo',
+        model: modelName,
         messages: [
           {
             role: 'system',
@@ -226,7 +274,7 @@ export class AIService {
       const prompt = `请为以下文本生成${maxTags}个相关的标签关键词，用逗号分隔：\n\n${text}`;
 
       const response = await openai.chat.completions.create({
-        model: 'gpt-3.5-turbo',
+        model: modelName,
         messages: [
           {
             role: 'system',

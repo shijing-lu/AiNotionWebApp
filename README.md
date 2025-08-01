@@ -60,15 +60,41 @@
 npm install
 ```
 
-### 2. 配置AI功能（可选）
-如果要使用AI功能，需要配置OpenAI API密钥：
+### 2. 配置AI功能（推荐）
 
-1. 将 `env.example` 文件重命名为 `.env.local`
-2. 访问 [OpenAI Platform](https://platform.openai.com/) 获取API密钥
-3. 在 `.env.local` 文件中填入你的API密钥：
+#### 🤖 方法一：自动配置（推荐）
+```bash
+npm run setup-ai
+```
+运行配置助手，按照提示输入OpenAI API密钥即可。
+
+#### 🔧 方法二：手动配置
+1. 复制环境变量文件：
+   ```bash
+   cp env.example .env.local
    ```
-   NEXT_PUBLIC_OPENAI_API_KEY=your_actual_api_key_here
+2. 获取OpenAI API密钥：
+   - 访问 [OpenAI Platform](https://platform.openai.com/api-keys)
+   - 注册/登录账户
+   - 点击 "Create new secret key"
+   - 复制生成的密钥（以 `sk-` 开头）
+3. 编辑 `.env.local` 文件：
    ```
+   NEXT_PUBLIC_OPENAI_API_KEY=sk-your-actual-api-key-here
+   ```
+
+#### 💡 AI功能说明
+- 📄 **文档总结**: 快速提取关键信息
+- 🌍 **文本翻译**: 支持多语言翻译
+- 💭 **概念解释**: 智能解释复杂概念
+- ❓ **智能问答**: 基于文档内容回答问题
+- ✨ **内容优化**: 改进文本风格和表达
+- 🏷️ **自动标签**: 智能生成相关标签
+
+#### ⚠️ 费用提醒
+- OpenAI API按使用量计费（约$0.002/1K tokens）
+- 新用户通常有$5免费额度
+- 建议在OpenAI控制台设置使用限额
 
 ### 3. 启动开发服务器
 ```bash
@@ -77,6 +103,14 @@ npm run dev
 
 ### 4. 打开浏览器
 访问 [http://localhost:3000](http://localhost:3000)
+
+### 5. 测试AI功能
+1. 点击左侧工具栏的 🧠 **AI测试** 按钮
+2. 在测试对话框中验证AI配置是否正确
+3. 开始使用AI助手功能：
+   - 在笔记编辑器中选择文本
+   - 点击右侧 AI 助手面板
+   - 选择需要的AI功能（总结、翻译等）
 
 ## 项目结构
 
