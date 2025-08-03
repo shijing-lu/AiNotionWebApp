@@ -413,37 +413,79 @@ const NoteList: React.FC<NoteListProps> = ({
         )}
 
         {/* Search */}
-        <TextField
-          fullWidth
-          size="small"
-          placeholder="Search notes or click tags..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <SearchIcon />
-              </InputAdornment>
-            ),
-            endAdornment: searchTerm && (
-              <InputAdornment position="end">
-                <IconButton
-                  size="small"
-                  onClick={() => setSearchTerm('')}
-                  title="清除搜索"
-                >
-                  <ClearIcon fontSize="small" />
-                </IconButton>
-              </InputAdornment>
-            ),
-          }}
+        <Stack spacing={2}>
+          <TextField
+            fullWidth
+            size="small"
+            placeholder="Search notes or click tags..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon />
+                </InputAdornment>
+                ),
+                endAdornment: searchTerm && (
+                  <InputAdornment position="end">
+                    <IconButton
+                      size="small"
+                      onClick={() => setSearchTerm('')}
+                      title="清除搜索"
+                    >
+                      <ClearIcon fontSize="small" />
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
+            />
+
+            {/* Tag Filter */}
+            {allTags.length > 0 && (
+              <Stack spacing={1}>
+                <Typography variant="caption" color="text.secondary">
+                  Filter by tag:
+                </Typography>
+                <Stack direction="row" spacing={1} flexWrap="wrap">
+                  <Chip
+                    label="All"
+                    size="small"
+                    onClick={() => {
+                      setSelectedTag(null);
+                      setSearchTerm('');
+                    }}
+                    color={selectedTag === null && !searchTerm ? 'primary' : 'default'}
+                    variant={selectedTag === null && !searchTerm ? 'filled' : 'outlined'}
+                  />
+                  {allTags.map(tag => (
+                    <Chip
+                      key={tag}
+                      label={tag}
+                      size="small"
+                      onClick={() => {
+                        if (selectedTag === tag) {
+                          setSelectedTag(null);
+                          setSearchTerm('');
+                        } else {
+                          setSelectedTag(tag);
+                          setSearchTerm(tag);
+                        }
+                      }}
+                      color={selectedTag === tag || searchTerm === tag ? 'primary' : 'default'}
+                      variant={selectedTag === tag || searchTerm === tag ? 'filled' : 'outlined'}
+                    />
+                  ))}
+                </Stack>
+              </Stack>
+            )}
+          </Stack>
           sx={{ mb: 2 }}
         />
 
         {/* Tag Filter */}
         {allTags.length > 0 && (
-          <Box>
-            <Typography variant="caption" color="text.secondary" mb={1} display="block">
+          <Stack spacing={1}>
+            <Typography variant="caption" color="text.secondary">
               Filter by tag:
             </Typography>
             <Stack direction="row" spacing={1} flexWrap="wrap">
@@ -476,7 +518,7 @@ const NoteList: React.FC<NoteListProps> = ({
                 />
               ))}
             </Stack>
-          </Box>
+          </Stack>
         )}
       </Box>
 

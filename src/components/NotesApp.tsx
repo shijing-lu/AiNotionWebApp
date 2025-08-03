@@ -20,6 +20,7 @@ import {
 import { Note } from '@/types/note';
 import NoteEditor from './NoteEditor';
 import NoteList from './NoteList';
+import AIChatSidebar from './AIChatSidebar';
 import { loadDemoData } from '@/utils/demoData';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -33,6 +34,7 @@ const NotesApp: React.FC = () => {
   const [selectedNote, setSelectedNote] = useState<Note | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(!isMobile);
   const [isLoading, setIsLoading] = useState(false);
+  const [selectedText, setSelectedText] = useState<string>('');
   const [storageInfo, setStorageInfo] = useState<{used: number, total: number, percentage: number}>({
     used: 0,
     total: 5 * 1024 * 1024, // 5MB default
@@ -171,6 +173,32 @@ const NotesApp: React.FC = () => {
     }
   }, [isMobile]);
 
+  const handleTextSelection = useCallback((text: string) => {
+    setSelectedText(text);
+  }, []);
+
+  const handleInsertText = useCallback((text: string) => {
+    if (selectedNote) {
+      const updatedNote = {
+        ...selectedNote,
+        content: selectedNote.content + '\n\n' + text,
+        updatedAt: new Date()
+      };
+      handleSaveNote(updatedNote);
+    }
+  }, [selectedNote, handleSaveNote]);
+
+  const handleUpdateTags = useCallback((tags: string[]) => {
+    if (selectedNote) {
+      const updatedNote = {
+        ...selectedNote,
+        tags: [...new Set([...selectedNote.tags, ...tags])], // Merge and deduplicate tags
+        updatedAt: new Date()
+      };
+      handleSaveNote(updatedNote);
+    }
+  }, [selectedNote, handleSaveNote]);
+
   const handleNoteSelect = useCallback((note: Note) => {
     setSelectedNote(note);
     
@@ -280,6 +308,7 @@ const NotesApp: React.FC = () => {
               note={selectedNote}
               onSave={handleSaveNote}
               onDelete={handleDeleteNote}
+              onTextSelection={handleTextSelection}
               isLoading={isLoading}
             />
           ) : (
@@ -304,6 +333,14 @@ const NotesApp: React.FC = () => {
           )}
         </Container>
       </Box>
+
+      {/* AI Chat Sidebar */}
+      <AIChatSidebar
+        noteContent={selectedNote?.content || ''}
+        selectedText={selectedText}
+        onInsertText={handleInsertText}
+        onUpdateTags={handleUpdateTags}
+      />
     </Box>
   );
 };
